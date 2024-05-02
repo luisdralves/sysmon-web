@@ -1,7 +1,7 @@
 import { Legend, type LegendProps } from '@/components/legend';
 import { getFillColor, getStrokeColor } from '@/utils/colors';
 import { type FormatOptions, formatValue } from '@/utils/format';
-import type { ReactNode } from 'react';
+import { type ReactNode, useMemo } from 'react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import type { AxisDomain } from 'recharts/types/util/types';
 
@@ -17,6 +17,11 @@ type Props = {
 };
 
 export const ChartCard = ({ data, domain, legend, hueOffset = 0, title, subtitle, formatOptions, total }: Props) => {
+  const estimateTickWidth = useMemo(
+    () => ((formatOptions?.units?.length ?? 0) + (formatOptions?.prefix === false ? 0 : 2)) * 8,
+    [formatOptions],
+  );
+
   return (
     <div className='chart-card'>
       <h2>{title}</h2>
@@ -32,7 +37,7 @@ export const ChartCard = ({ data, domain, legend, hueOffset = 0, title, subtitle
           data={data}
           margin={{
             bottom: -16,
-            left: 40,
+            left: estimateTickWidth,
           }}
         >
           <CartesianGrid vertical={false} stroke='var(--color-neutral1)' />

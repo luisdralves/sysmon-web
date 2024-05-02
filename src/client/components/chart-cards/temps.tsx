@@ -31,7 +31,7 @@ export const Temps = () => {
         values: dynamicData.temps,
         labels: staticData.components,
       }}
-      formatOptions={{ units: 'ºC' }}
+      formatOptions={{ si: true, prefix: false, units: 'ºC' }}
       data={history}
       total={total_sensors}
     />

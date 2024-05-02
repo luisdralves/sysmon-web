@@ -1,0 +1,33 @@
+:root {
+  --color-neutral0: #002b36;
+  --color-neutral1: #073642;
+  --color-neutral2: #586e75;
+  --color-neutral3: #657b83;
+  --color-neutral4: #839496;
+  --color-neutral5: #93a1a1;
+  --color-neutral6: #eee8d5;
+  --color-neutral7: #fdf6e3;
+
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color: var(--color-neutral6);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+* {
+  margin-top: 0;
+}

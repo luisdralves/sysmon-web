@@ -1,0 +1,28 @@
+{
+  "name": "sysmon-web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host & cargo run",
+    "build": "tsc && vite build && cargo build --release",
+    "preview": "vite preview --host & cargo run --release"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.32.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "recharts": "^2.12.6"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.7.1",
+    "@types/node": "^20.12.8",
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0"
+  }
+}

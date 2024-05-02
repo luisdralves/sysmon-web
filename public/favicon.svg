@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 40 40">
+  <defs>
+    <linearGradient id="c" x2="0" y1="543.8" y2="503.8" gradientTransform="translate(-389 -504)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#002b36"/>
+      <stop offset="1" stop-color="#073642"/>
+    </linearGradient>
+    <linearGradient id="b" x1="0" x2="0" y1="44" y2="12" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2aa198"/>
+      <stop offset="1" stop-color="#268bd2"/>
+    </linearGradient>
+    <linearGradient id="a" x1="9" x2="13" y1="15" y2="21.9" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient xlink:href="#a" id="e" x1="9" x2="13" y1="15" y2="21.9" gradientTransform="translate(-4 -4)" gradientUnits="userSpaceOnUse"/>
+    <linearGradient xlink:href="#b" id="d" x1="-42" x2="-42" y1="44" y2="18" gradientTransform="translate(56 -4)" gradientUnits="userSpaceOnUse"/>
+  </defs>
+  <path fill="url(#c)" d="M5.9 0A5.9 5.9 0 0 0 0 5.9v28.2C0 37.4 2.6 40 5.9 40h28.2c3.3 0 5.9-2.6 5.9-5.9V5.9C40 2.6 37.4 0 34.1 0H5.9z"/>
+  <path fill="url(#d)" d="M9 12c-5 0-5 5-9 10v12.1A5.86 5.86 0 0 0 2.58 39h34.84A5.86 5.86 0 0 0 40 34.1V31s-6-9-9-10c-4-1-6 4-11 3-4-1-6-12-11-12z"/>
+  <path fill="url(#e)" fill-rule="evenodd" d="M9 12H8c-5 1-5 8-10 11v1c5-3 5-10 10-11 7-1 6 9 11 12 6 3 10-7 18 3 2 2 3 4 5 4v-1c-2 0-3-2-5-4-8-10-12 0-18-3-5-3-4-12-10-12"/>
+</svg>

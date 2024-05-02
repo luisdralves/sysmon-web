@@ -1,0 +1,19 @@
+.legend-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12;
+  width: 100%;
+  overflow: hidden;
+
+  > div {
+    flex: 1;
+  }
+
+  small {
+    display: inline-block;
+    max-width: 128px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

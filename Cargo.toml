@@ -1,0 +1,17 @@
+[package]
+name = "stats_server"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+axum = { version = "0.6.9", features = ["macros", "ws"] }
+serde_json = "1.0.93"
+sysinfo = "0.30.11"
+tokio = { version = "1.25.0", features = ["full"] }
+tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
+
+[[bin]]
+name = "stats_server"
+path = "src/stats-server/main.rs"

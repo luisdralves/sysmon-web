@@ -8,7 +8,7 @@ export const formatValue = (value: number, { decimals = 1, prefix = true, si, un
   }
 
   if (!prefix) {
-    return `${value}\u2009${units}`;
+    return `${Number(value.toFixed(Math.max(0, decimals)))}\u2009${units}`;
   }
 
   const k = si ? 1000 : 1024;

@@ -29,6 +29,7 @@ export const Memory = () => {
         values: [staticData.total_memory, staticData.total_swap],
         labels: ['Total memory', 'Total swap'],
       }}
+      domain={[0, Math.max(staticData.total_memory, staticData.total_swap)]}
       formatOptions={{ units: 'B' }}
       data={history}
       total={2}

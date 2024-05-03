@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChartCard } from './index';
 
 export const Temps = () => {
@@ -18,8 +18,6 @@ export const Temps = () => {
     }
   }, [dynamicData]);
 
-  const total_sensors = useMemo(() => history.at(-1)?.length ?? 0, [history]);
-
   if (!staticData || !dynamicData) {
     return <div />;
   }
@@ -33,7 +31,7 @@ export const Temps = () => {
       }}
       formatOptions={{ si: true, prefix: false, units: 'ºC' }}
       data={history}
-      total={total_sensors}
+      total={staticData.components.length}
     />
   );
 };

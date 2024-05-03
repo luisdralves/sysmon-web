@@ -1,6 +1,9 @@
+import { formatValue } from '@/utils/format';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ChartCard } from './index';
+
+const formatOptions = { units: 'B' };
 
 export const Memory = () => {
   const { data: staticData } = useQuery<StaticData>({ queryKey: ['static'] });
@@ -18,6 +21,13 @@ export const Memory = () => {
     }
   }, [dynamicData]);
 
+  const formatedTotals = useMemo(() => {
+    if (!staticData) {
+      return [];
+    }
+    return [formatValue(staticData.total_memory, formatOptions), formatValue(staticData.total_swap, formatOptions)];
+  }, [staticData]);
+
   if (!staticData || !dynamicData) {
     return <div />;
   }
@@ -26,11 +36,14 @@ export const Memory = () => {
     <ChartCard
       title='Memory'
       legend={{
-        values: [staticData.total_memory, staticData.total_swap],
-        labels: ['Total memory', 'Total swap'],
+        values: [
+          `${formatValue(dynamicData.mem_usage, formatOptions)} / ${formatedTotals[0]}`,
+          `${formatValue(dynamicData.swap_usage, formatOptions)} / ${formatedTotals[1]}`,
+        ],
+        labels: ['Memory', 'Swap'],
       }}
       domain={[0, Math.max(staticData.total_memory, staticData.total_swap)]}
-      formatOptions={{ units: 'B' }}
+      formatOptions={formatOptions}
       data={history}
       total={2}
     />

@@ -5,7 +5,7 @@ import { ChartCard } from './index';
 export const Cpu = () => {
   const { data: staticData } = useQuery<StaticData>({ queryKey: ['static'] });
   const { data: dynamicData } = useQuery<DynamicData>({ queryKey: ['dynamic'] });
-  const [history, setHistory] = useState<number[][]>(new Array(150).fill([]));
+  const [history, setHistory] = useState<number[][]>(new Array(Number(import.meta.env.CLIENT_GRAPH_STEPS)).fill([]));
 
   useEffect(() => {
     if (dynamicData) {

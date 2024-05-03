@@ -1,4 +1,5 @@
 use axum::{extract::State, http::Response, response::IntoResponse, routing::get, Router, Server};
+use dotenv::dotenv;
 use serde_json::{json, Value};
 use std::{
     sync::{Arc, Mutex},
@@ -27,6 +28,18 @@ impl Default for AppState {
 
 #[tokio::main]
 async fn main() {
+    dotenv().ok();
+    let refresh_interval = Duration::from_millis(
+        std::env::var("SERVER_REFRESH_INTERVAL")
+            .unwrap()
+            .parse::<u64>()
+            .unwrap(),
+    );
+    let active_window = std::env::var("SERVER_ACTIVE_WINDOW")
+        .unwrap()
+        .parse::<u128>()
+        .unwrap();
+    let port = std::env::var("SERVER_PORT").unwrap();
     let app_state = AppState::default();
 
     let router = Router::new()
@@ -45,7 +58,7 @@ async fn main() {
             let now = Instant::now();
             let latest = app_state.latest.lock().unwrap().clone();
 
-            if (now - latest).as_millis() < 10000 {
+            if (now - latest).as_millis() < active_window {
                 sys.refresh_cpu();
                 sys.refresh_memory();
                 components.refresh();
@@ -82,11 +95,12 @@ async fn main() {
                 }
             }
 
-            std::thread::sleep(Duration::from_millis(200));
+            std::thread::sleep(refresh_interval);
         }
     });
 
-    let server = Server::bind(&"0.0.0.0:3001".parse().unwrap()).serve(router.into_make_service());
+    let server = Server::bind(&format!("0.0.0.0:{}", port).parse().unwrap())
+        .serve(router.into_make_service());
     let addr = server.local_addr();
     println!("Listening on {addr}");
 

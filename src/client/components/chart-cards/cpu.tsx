@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChartCard } from './index';
 
 export const Cpu = () => {
@@ -18,11 +18,11 @@ export const Cpu = () => {
     }
   }, [dynamicData]);
 
-  const total_cpus = useMemo(() => history.at(-1)?.length ?? 0, [history]);
-
   if (!staticData || !dynamicData) {
     return <div />;
   }
+
+  const total_cpus = dynamicData.cpu_usage.length;
 
   return (
     !!total_cpus && (

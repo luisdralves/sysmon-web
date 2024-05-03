@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host & cargo run",
+    "dev": "vite --port $CLIENT_PORT --host & cargo run",
     "build": "tsc && vite build && cargo build --release",
-    "preview": "vite preview --host & cargo run --release"
+    "preview": "vite --port $CLIENT_PORT preview --host & cargo run --release"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.32.0",

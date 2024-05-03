@@ -1,6 +1,6 @@
 const getApiUrl = (path: string) => {
   const url = new URL(window.location.href);
-  url.port = '3001';
+  url.port = import.meta.env.SERVER_PORT;
   url.pathname = path;
 
   return url;

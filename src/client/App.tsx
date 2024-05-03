@@ -19,7 +19,7 @@ const Main = () => {
   const dynamicQuery = useQuery({
     queryKey: ['dynamic'],
     queryFn: fetchDynamicData,
-    refetchInterval: 500,
+    refetchInterval: Number(import.meta.env.CLIENT_REFETCH_INTERVAL),
   });
 
   const isLoading = staticQuery.isLoading || dynamicQuery.isLoading;

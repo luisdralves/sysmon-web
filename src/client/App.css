@@ -1,22 +1,42 @@
 #root {
   background-color: var(--color-neutral1);
   display: grid;
-  grid-auto-rows: calc(50svh - 16px);
   padding: 8px;
   gap: 8px;
-
-  @media (min-width: 500px) {
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    height: 100vh;
-  }
 
   > div {
     border-radius: 16px;
     background-color: var(--color-neutral0);
     padding: 16px;
     width: 100%;
+    height: max-content;
     overflow: hidden;
+  }
+
+  .chart {
+    min-height: 25svh;
+  }
+
+  @media (min-width: 640px) {
+    @media (min-height: 640px) {
+      height: 100vh;
+
+      > div {
+        height: 100%;
+      }
+
+      .chart {
+        min-height: unset;
+      }
+
+      @media (orientation: landscape) {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      
+      @media (orientation: portrait) {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
   }
 }
 

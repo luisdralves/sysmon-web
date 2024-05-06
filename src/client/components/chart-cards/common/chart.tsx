@@ -16,6 +16,7 @@ type Props = {
   total: number;
   data: number[];
   domain?: [number, number];
+  hardDomain?: boolean;
   formatOptions?: FormatOptions;
   hueOffset?: number;
 };
@@ -60,18 +61,25 @@ const CartesianGrid = () => (
   </svg>
 );
 
-export const CanvasChart = ({ total, hueOffset = 0, domain, data, formatOptions }: Props) => {
+export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, data, formatOptions }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null!);
   const ignored = useRef(0);
   const now = useMemo(() => Date.now(), []);
   const [history, setHistory] = useState<[number, number[]][]>([[now, []]]);
-  const max = useMemo(() => {
-    if (domain) {
+  const targetMax = useMemo(() => {
+    if (domain && hardDomain) {
       return domain[1];
     }
 
-    return 1.25 * history.reduce((max, [_, values]) => Math.max(max, ...values), 0);
-  }, [history, domain]);
+    const historyMax = history.reduce((max, [_, values]) => Math.max(max, ...values), 0);
+
+    if (!domain || historyMax > domain[1]) {
+      return 1.25 * historyMax;
+    }
+
+    return domain[1];
+  }, [history, domain, hardDomain]);
+  const max = useRef(targetMax);
 
   useEffect(() => {
     if (data) {
@@ -102,9 +110,14 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, data, formatOptions 
       return;
     }
     ignored.current = 0;
+
     const ctx = canvasRef.current.getContext('2d');
     if (!ctx) {
       return;
+    }
+
+    if (!hardDomain) {
+      max.current = (max.current + targetMax) / 2;
     }
 
     ctx.clearRect(0, 0, width, height);
@@ -114,14 +127,14 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, data, formatOptions 
       ctx.strokeStyle = getStrokeColor(hueOffset + (360 * Number(i)) / total);
       ctx.beginPath();
       ctx.moveTo(-xMargin, height);
-      ctx.lineTo(-xMargin, height - (height * (history[0][1][i] ?? 0)) / max);
+      ctx.lineTo(-xMargin, height - (height * (history[0][1][i] ?? 0)) / max.current);
       for (const [timestamp, values] of history) {
         const x = xFromTimestamp(timestamp);
-        const y = height - (height * (values[i] ?? 0)) / max;
+        const y = height - (height * (values[i] ?? 0)) / max.current;
 
         ctx.lineTo(x, y);
       }
-      ctx.lineTo(width + xMargin, height - (height * (history[0][1][i] ?? 0)) / max);
+      ctx.lineTo(width + xMargin, height - (height * (history[0][1][i] ?? 0)) / max.current);
       ctx.lineTo(width + xMargin, height);
       ctx.stroke();
       ctx.fill();
@@ -131,7 +144,7 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, data, formatOptions 
 
   return (
     <div className='chart'>
-      <YAxis max={max} formatOptions={formatOptions} />
+      <YAxis max={targetMax} formatOptions={formatOptions} />
 
       <div className='canvas-wrapper'>
         <CartesianGrid />

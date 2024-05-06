@@ -31,6 +31,7 @@ export const Memory = () => {
         labels: ['Memory', 'Swap'],
       }}
       domain={[0, Math.max(staticData.total_memory, staticData.total_swap)]}
+      hardDomain
       formatOptions={formatOptions}
       data={[dynamicData.mem_usage, dynamicData.swap_usage]}
       total={2}

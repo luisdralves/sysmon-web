@@ -9,12 +9,13 @@ type Props = {
   legend?: Omit<LegendProps, 'values'> & Partial<Pick<LegendProps, 'values'>>;
   formatOptions?: FormatOptions;
   domain?: [number, number];
+  hardDomain?: boolean;
   hueOffset?: number;
   data: number[];
   total: number;
 };
 
-export const ChartCard = ({ data, domain, legend, hueOffset = 0, title, subtitle, formatOptions, total }: Props) => {
+export const ChartCard = ({ data, legend, hueOffset = 0, title, subtitle, formatOptions, ...rest }: Props) => {
   return (
     <div className='chart-card'>
       <h2>{title}</h2>
@@ -23,7 +24,7 @@ export const ChartCard = ({ data, domain, legend, hueOffset = 0, title, subtitle
 
       {legend && <Legend hueOffset={hueOffset} formatOptions={formatOptions} values={data} {...legend} />}
 
-      <CanvasChart data={data} hueOffset={hueOffset} domain={domain} total={total} formatOptions={formatOptions} />
+      <CanvasChart data={data} hueOffset={hueOffset} formatOptions={formatOptions} {...rest} />
     </div>
   );
 };

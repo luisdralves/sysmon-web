@@ -89,24 +89,34 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, data, fo
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
-    for (let i = 0; i < total; i++) {
-      ctx.fillStyle = getFillColor(hueOffset + (360 * Number(i)) / total);
-      ctx.strokeStyle = getStrokeColor(hueOffset + (360 * Number(i)) / total);
-      ctx.beginPath();
-      ctx.moveTo(-xMargin, height);
-      ctx.lineTo(-xMargin, height - (height * (history[0][1][i] ?? 0)) / max.current);
-      for (const [timestamp, values] of history) {
-        const x = xFromTimestamp(timestamp, width);
-        const y = height - (height * (values[i] ?? 0)) / max.current;
+    const drawSeries = (type: 'fill' | 'stroke') => {
+      for (let i = 0; i < total; i++) {
+        if (type === 'fill') ctx.fillStyle = getFillColor(hueOffset + (360 * Number(i)) / total);
+        if (type === 'stroke') ctx.strokeStyle = getStrokeColor(hueOffset + (360 * Number(i)) / total);
 
-        ctx.lineTo(x, y);
+        ctx.beginPath();
+        ctx.moveTo(-xMargin, height);
+        ctx.lineTo(-xMargin, height - (height * (history[0][1][i] ?? 0)) / max.current);
+
+        for (const [timestamp, values] of history) {
+          const x = xFromTimestamp(timestamp, width);
+          const y = height - (height * (values[i] ?? 0)) / max.current;
+
+          ctx.lineTo(x, y);
+        }
+
+        ctx.lineTo(width + xMargin, height - (height * (history[0][1][i] ?? 0)) / max.current);
+        ctx.lineTo(width + xMargin, height);
+
+        if (type === 'fill') ctx.fill();
+        if (type === 'stroke') ctx.stroke();
+
+        ctx.closePath();
       }
-      ctx.lineTo(width + xMargin, height - (height * (history[0][1][i] ?? 0)) / max.current);
-      ctx.lineTo(width + xMargin, height);
-      ctx.stroke();
-      ctx.fill();
-      ctx.closePath();
-    }
+    };
+
+    drawSeries('fill');
+    drawSeries('stroke');
   }, fps);
 
   return (

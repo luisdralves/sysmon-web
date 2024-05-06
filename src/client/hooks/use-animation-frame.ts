@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 
-export const useAnimationFrame = (callback: (dt: number) => void) => {
+export const useAnimationFrame = (callback: (dt: number) => void, fps = 60) => {
+  const ignored = useRef(0);
   const requestRef = useRef<number>();
   const previousTimeRef = useRef<number>();
 
@@ -8,7 +9,12 @@ export const useAnimationFrame = (callback: (dt: number) => void) => {
     const animate: FrameRequestCallback = time => {
       if (previousTimeRef.current !== undefined) {
         const deltaTime = time - previousTimeRef.current;
-        callback(deltaTime);
+        ignored.current += deltaTime;
+
+        if (ignored.current > 1000 / fps) {
+          ignored.current = 0;
+          callback(deltaTime);
+        }
       }
       previousTimeRef.current = time;
       requestRef.current = requestAnimationFrame(animate);
@@ -20,5 +26,5 @@ export const useAnimationFrame = (callback: (dt: number) => void) => {
         cancelAnimationFrame(requestRef.current);
       }
     };
-  }, [callback]);
+  }, [callback, fps]);
 };

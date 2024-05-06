@@ -1,0 +1,46 @@
+.switch-wrapper {
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  align-items: center;
+  gap: 8px;
+}
+
+.switch {
+  position: relative;
+  width: 64px;
+  height: 32px;
+}
+
+.switch input {
+  visibility: hidden;
+}
+
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: var(--color-background2);
+  transition: 200ms background-color;
+  border-radius: 32px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  aspect-ratio: 1;
+  left: 4px;
+  top: 4px;
+  bottom: 4px;
+  background-color: var(--color-background0);
+  transition: 200ms transform;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--color-primary);
+}
+
+input:checked + .slider:before {
+  transform: translateX(32px);
+}

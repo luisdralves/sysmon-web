@@ -22,7 +22,7 @@ export const CartesianGrid = () => (
         key={index}
         y1={Math.max(1, Math.min(height - 1, (height * index) / 4))}
         y2={Math.max(1, Math.min(height - 1, (height * index) / 4))}
-        stroke='var(--color-neutral1)'
+        stroke='var(--color-background1)'
         strokeWidth={1}
       />
     ))}

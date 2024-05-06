@@ -1,12 +1,13 @@
 #root {
-  background-color: var(--color-neutral1);
+  background-color: var(--color-background1);
+  color: var(--color-text);
   display: grid;
   padding: 8px;
   gap: 8px;
 
   > div {
     border-radius: 16px;
-    background-color: var(--color-neutral0);
+    background-color: var(--color-background0);
     padding: 16px;
     width: 100%;
     height: max-content;

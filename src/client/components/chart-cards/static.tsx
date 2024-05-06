@@ -1,6 +1,7 @@
 import { useAnimationFrame } from '@/hooks/use-animation-frame';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Switch } from '../switch';
 
 const formatUptime = (value: number) => {
   const seconds = String(Math.floor(value % 60)).padStart(2, '0');
@@ -37,6 +38,12 @@ const Uptime = ({ boot_time }: Pick<StaticData, 'boot_time'>) => {
 
 export const Static = () => {
   const { data: staticData } = useQuery<StaticData>({ queryKey: ['static'] });
+  const root = useRef(document.getElementById('root')!);
+  const [dark, setDark] = useState(window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  useEffect(() => {
+    root.current.setAttribute('data-theme', dark ? 'dark' : 'light');
+  }, [dark]);
 
   return (
     staticData && (
@@ -51,6 +58,12 @@ export const Static = () => {
         <small>Kernel</small>
         <h3>{staticData.kernel_version}</h3>
         {staticData.boot_time && <Uptime boot_time={staticData.boot_time} />}
+
+        <Switch
+          checked={dark}
+          label={`${dark ? 'Dark' : 'Light'} theme`}
+          onChange={({ target }) => setDark(target.checked)}
+        />
       </div>
     )
   );

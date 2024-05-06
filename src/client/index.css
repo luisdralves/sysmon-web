@@ -7,17 +7,32 @@
   --color-neutral5: #93a1a1;
   --color-neutral6: #eee8d5;
   --color-neutral7: #fdf6e3;
+  --color-primary: #2aa198;
 
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color: var(--color-neutral6);
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+[data-theme="light"] {
+  --color-background0: var(--color-neutral7);
+  --color-background1: var(--color-neutral6);
+  --color-background2: var(--color-neutral5);
+  --color-text: var(--color-neutral1);
+  --color-text-subdued: var(--color-neutral5);
+}
+
+[data-theme="dark"] {
+  --color-background0: var(--color-neutral0);
+  --color-background1: var(--color-neutral1);
+  --color-background2: var(--color-neutral2);
+  --color-text: var(--color-neutral6);
+  --color-text-subdued: var(--color-neutral2);
 }
 
 body {

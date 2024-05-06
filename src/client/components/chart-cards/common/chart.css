@@ -1,0 +1,40 @@
+.chart {
+  color: var(--color-neutral2);
+  display: grid;
+  font-size: 16px;
+  gap: 4px;
+  grid-template-columns: max-content 1fr;
+  height: 100%;
+  line-height: 1;
+  overflow: hidden;
+}
+
+.chart > .y-axis {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+
+  > div {
+    text-align: right;
+  }
+}
+
+.chart .cartesian-grid {
+  height: calc(100% - 16px);
+  position: absolute;
+  top: 8px;
+  width: 100%;
+}
+
+.chart .canvas-wrapper {
+  position: relative;
+
+  > canvas {
+    height: calc(100% - 16px);
+    left: 8px;
+    position: absolute;
+    top: 8px;
+    width: calc(100% - 8px);
+  }
+}

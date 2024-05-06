@@ -1,25 +1,13 @@
 import { formatValue } from '@/utils/format';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
-import { ChartCard } from './index';
+import { useMemo } from 'react';
+import { ChartCard } from './common/card';
 
 const formatOptions = { units: 'B' };
 
 export const Memory = () => {
   const { data: staticData } = useQuery<StaticData>({ queryKey: ['static'] });
   const { data: dynamicData } = useQuery<DynamicData>({ queryKey: ['dynamic'] });
-  const [history, setHistory] = useState<number[][]>(new Array(Number(import.meta.env.CLIENT_GRAPH_STEPS)).fill([]));
-
-  useEffect(() => {
-    if (dynamicData) {
-      setHistory(history => {
-        const newHistory = history.slice(1);
-        newHistory.push([dynamicData.mem_usage, dynamicData.swap_usage]);
-
-        return newHistory;
-      });
-    }
-  }, [dynamicData]);
 
   const formatedTotals = useMemo(() => {
     if (!staticData) {
@@ -44,7 +32,7 @@ export const Memory = () => {
       }}
       domain={[0, Math.max(staticData.total_memory, staticData.total_swap)]}
       formatOptions={formatOptions}
-      data={history}
+      data={[dynamicData.mem_usage, dynamicData.swap_usage]}
       total={2}
     />
   );

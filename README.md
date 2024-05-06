@@ -1,30 +1,8 @@
-# React + TypeScript + Vite
+# SysMon Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A system monitor for the web. Data is read with rust, and displayed on the browser via HTML canvas
 
-Currently, two official plugins are available:
+![Screenshot 2024-05-06 at 18-49-44 SysMon Web](https://github.com/luisdralves/sysmon-web/assets/22676183/af08467d-50ae-4bd1-84d8-751f03b5fe11)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Inspired by [fasterthanlime/axact](https://github.com/fasterthanlime/axact). Main differences are reading more information, sleeping when not in use, and the whole React client side. Also, the websocket implementation was removed as it doesn't justify itself.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list

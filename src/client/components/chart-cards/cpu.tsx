@@ -22,6 +22,7 @@ export const Cpu = () => {
           </h3>
         }
         domain={[0, 100]}
+        hardDomain
         formatOptions={{ prefix: false, units: '%' }}
         data={dynamicData.cpu_usage}
         total={total_cpus}

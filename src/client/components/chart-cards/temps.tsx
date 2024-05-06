@@ -15,7 +15,7 @@ export const Temps = () => {
       legend={{
         labels: staticData.components,
       }}
-      domain={[0, 100]} //(max: number) => Math.max(100, Math.ceil(1.25 * max))]}
+      domain={[0, 100]}
       formatOptions={{ si: true, prefix: false, units: 'ºC' }}
       data={dynamicData.temps}
       total={staticData.components.length}

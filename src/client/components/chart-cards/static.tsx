@@ -1,6 +1,6 @@
 import { useAnimationFrame } from '@/hooks/use-animation-frame';
 import { useQuery } from '@tanstack/react-query';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 const formatUptime = (value: number) => {
   const seconds = String(Math.floor(value % 60)).padStart(2, '0');
@@ -24,14 +24,8 @@ const formatUptime = (value: number) => {
 
 const Uptime = ({ boot_time }: Pick<StaticData, 'boot_time'>) => {
   const [uptime, setUptime] = useState(formatUptime(Date.now() / 1000 - boot_time));
-  const lastUpdate = useRef(0);
 
-  useAnimationFrame(dt => {
-    lastUpdate.current += dt;
-    if (lastUpdate.current > 1000) {
-      setUptime(formatUptime(Date.now() / 1000 - boot_time));
-    }
-  });
+  useAnimationFrame(() => setUptime(formatUptime(Date.now() / 1000 - boot_time)), 1);
 
   return (
     <>

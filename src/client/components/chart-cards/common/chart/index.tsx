@@ -1,16 +1,15 @@
 import { useAnimationFrame } from '@/hooks/use-animation-frame';
 import { getFillColor, getStrokeColor } from '@/utils/colors';
-import { type FormatOptions, formatValue } from '@/utils/format';
+import type { FormatOptions } from '@/utils/format';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import './chart.css';
+import { CartesianGrid } from './cartesian-grid';
+import './index.css';
+import { YAxis } from './y-axis';
 
 const stepWindow = Number(import.meta.env.CLIENT_GRAPH_STEPS);
 const stepPeriod = Number(import.meta.env.CLIENT_REFETCH_INTERVAL);
-const width = 640;
-const height = 480;
 const xMargin = 4;
 const fps = 30;
-const framePeriod = 1000 / fps;
 
 type Props = {
   total: number;
@@ -21,49 +20,11 @@ type Props = {
   hueOffset?: number;
 };
 
-const xFromTimestamp = (timestamp: number) =>
+const xFromTimestamp = (timestamp: number, width: number) =>
   ((timestamp - Date.now()) / stepPeriod) * (width / stepWindow) + width + (width / stepWindow) * 2;
-
-const YAxis = ({ max, formatOptions }: Pick<Props, 'formatOptions'> & { max: number }) => (
-  <div className='y-axis'>
-    {Array.from({ length: 5 }).map((_, index) => (
-      // biome-ignore lint/suspicious/noArrayIndexKey: supress react console error
-      <div key={index}>{formatValue((max * (4 - index)) / 4, formatOptions)}</div>
-    ))}
-  </div>
-);
-
-const CartesianGrid = () => (
-  <svg
-    className='cartesian-grid'
-    version='1.1'
-    xmlns='http://www.w3.org/2000/svg'
-    width='100%'
-    height='100%'
-    viewBox={`0 0 ${width} ${height}`}
-    preserveAspectRatio='none'
-    vectorEffect='non-scaling-stroke'
-  >
-    <title>{'Cartesian grid'}</title>
-
-    {Array.from({ length: 5 }).map((_, index) => (
-      <line
-        x1={'0'}
-        x2={'100%'}
-        // biome-ignore lint/suspicious/noArrayIndexKey: supress react console error
-        key={index}
-        y1={Math.max(1, Math.min(height - 1, (height * index) / 4))}
-        y2={Math.max(1, Math.min(height - 1, (height * index) / 4))}
-        stroke='var(--color-neutral1)'
-        strokeWidth={1}
-      />
-    ))}
-  </svg>
-);
 
 export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, data, formatOptions }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null!);
-  const ignored = useRef(0);
   const now = useMemo(() => Date.now(), []);
   const [history, setHistory] = useState<[number, number[]][]>([[now, []]]);
   const targetMax = useMemo(() => {
@@ -81,36 +42,39 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, data, fo
   }, [history, domain, hardDomain]);
   const max = useRef(targetMax);
 
+  const [width, setWidth] = useState(640);
+  const [height, setHeight] = useState(480);
+
+  // Record data changes
   useEffect(() => {
     if (data) {
       setHistory(history => {
-        const firstValidIndex = history.findIndex(([timestamp]) => xFromTimestamp(timestamp) >= -xMargin);
+        const firstValidIndex = history.findIndex(([timestamp]) => xFromTimestamp(timestamp, width) >= -xMargin);
         const newHistory = history.slice(firstValidIndex);
         newHistory.push([Date.now(), data]);
 
         return newHistory;
       });
     }
-  }, [data]);
+  }, [data, width]);
 
+  // Sync canvas size to actual element dimensions
   useEffect(() => {
-    const ctx = canvasRef.current.getContext('2d');
-    if (!ctx) {
-      return;
-    }
+    const onResize = () => {
+      const dimensions = canvasRef.current.getBoundingClientRect();
+      const newWidth = dimensions.width * window.devicePixelRatio;
+      setWidth(newWidth);
+      setHeight(dimensions.height * window.devicePixelRatio);
+    };
 
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    onResize();
+
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  useAnimationFrame(dt => {
-    ignored.current += dt;
-    if (ignored.current < framePeriod) {
-      return;
-    }
-    ignored.current = 0;
-
+  // Redraw chart
+  useAnimationFrame(() => {
     const ctx = canvasRef.current.getContext('2d');
     if (!ctx) {
       return;
@@ -121,6 +85,9 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, data, fo
     }
 
     ctx.clearRect(0, 0, width, height);
+    ctx.lineWidth = 2 * window.devicePixelRatio;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 
     for (let i = 0; i < total; i++) {
       ctx.fillStyle = getFillColor(hueOffset + (360 * Number(i)) / total);
@@ -129,7 +96,7 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, data, fo
       ctx.moveTo(-xMargin, height);
       ctx.lineTo(-xMargin, height - (height * (history[0][1][i] ?? 0)) / max.current);
       for (const [timestamp, values] of history) {
-        const x = xFromTimestamp(timestamp);
+        const x = xFromTimestamp(timestamp, width);
         const y = height - (height * (values[i] ?? 0)) / max.current;
 
         ctx.lineTo(x, y);
@@ -140,7 +107,7 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, data, fo
       ctx.fill();
       ctx.closePath();
     }
-  });
+  }, fps);
 
   return (
     <div className='chart'>

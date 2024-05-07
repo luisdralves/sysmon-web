@@ -2,7 +2,7 @@
   color: var(--color-text-subdued);
   display: grid;
   font-size: 16px;
-  gap: 4px;
+  gap: 6px;
   grid-template-columns: max-content 1fr;
   height: 100%;
   line-height: 1;
@@ -21,21 +21,13 @@
   }
 }
 
-.chart .cartesian-grid {
-  height: calc(100% - 16px);
-  position: absolute;
-  top: 8px;
-  width: 100%;
-}
-
 .chart .canvas-wrapper {
   position: relative;
 
   > canvas {
     height: calc(100% - 16px);
-    left: 8px;
     position: absolute;
     top: 8px;
-    width: calc(100% - 8px);
+    width: 100%;
   }
 }

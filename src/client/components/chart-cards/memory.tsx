@@ -1,20 +1,22 @@
+import { siAtom } from '@/atoms';
 import { formatValue } from '@/utils/format';
 import { useQuery } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import { ChartCard } from './common/card';
-
-const formatOptions = { units: 'B' };
 
 export const Memory = () => {
   const { data: staticData } = useQuery<StaticData>({ queryKey: ['static'] });
   const { data: dynamicData } = useQuery<DynamicData>({ queryKey: ['dynamic'] });
+  const isSi = useAtomValue(siAtom);
+  const formatOptions = { units: 'B', ...(isSi && { si: true }) };
 
   const formatedTotals = useMemo(() => {
     if (!staticData) {
       return [];
     }
     return [formatValue(staticData.total_memory, formatOptions), formatValue(staticData.total_swap, formatOptions)];
-  }, [staticData]);
+  }, [staticData, formatOptions]);
 
   if (!staticData || !dynamicData) {
     return <div />;

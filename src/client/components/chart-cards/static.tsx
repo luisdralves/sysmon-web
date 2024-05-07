@@ -1,7 +1,10 @@
+import { highFpsAtom, siAtom } from '@/atoms';
+import { Switch } from '@/components/switch';
 import { useAnimationFrame } from '@/hooks/use-animation-frame';
 import { useQuery } from '@tanstack/react-query';
+import { useAtom } from 'jotai';
 import { useEffect, useRef, useState } from 'react';
-import { Switch } from '../switch';
+import './static.css';
 
 const formatUptime = (value: number) => {
   const seconds = String(Math.floor(value % 60)).padStart(2, '0');
@@ -40,6 +43,8 @@ export const Static = () => {
   const { data: staticData } = useQuery<StaticData>({ queryKey: ['static'] });
   const root = useRef(document.getElementById('root')!);
   const [dark, setDark] = useState(window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const [highFps, setHighFps] = useAtom(highFpsAtom);
+  const [isSi, setIsSi] = useAtom(siAtom);
 
   useEffect(() => {
     root.current.setAttribute('data-theme', dark ? 'dark' : 'light');
@@ -59,11 +64,25 @@ export const Static = () => {
         <h3>{staticData.kernel_version}</h3>
         {staticData.boot_time && <Uptime boot_time={staticData.boot_time} />}
 
-        <Switch
-          checked={dark}
-          label={`${dark ? 'Dark' : 'Light'} theme`}
-          onChange={({ target }) => setDark(target.checked)}
-        />
+        <div className='switches'>
+          <Switch
+            checked={dark}
+            label={`${dark ? 'Dark' : 'Light'} theme`}
+            onChange={({ target }) => setDark(target.checked)}
+          />
+
+          <Switch
+            checked={highFps}
+            label={`${highFps ? 'High' : 'Low'} FPS`}
+            onChange={({ target }) => setHighFps(target.checked)}
+          />
+
+          <Switch
+            checked={isSi}
+            label={`Powers of ${isSi ? 10 : 2}`}
+            onChange={({ target }) => setIsSi(target.checked)}
+          />
+        </div>
       </div>
     )
   );

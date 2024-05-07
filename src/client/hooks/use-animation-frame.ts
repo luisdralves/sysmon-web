@@ -1,9 +1,13 @@
+import { highFpsAtom } from '@/atoms';
+import { useAtomValue } from 'jotai';
 import { useEffect, useRef } from 'react';
 
-export const useAnimationFrame = (callback: (dt: number) => void, fps = 60) => {
+export const useAnimationFrame = (callback: (dt: number) => void, fps?: number) => {
   const ignored = useRef(0);
   const requestRef = useRef<number>();
   const previousTimeRef = useRef<number>();
+  const highFps = useAtomValue(highFpsAtom);
+  const autoFps = fps ?? (highFps ? 30 : 4);
 
   useEffect(() => {
     const animate: FrameRequestCallback = time => {
@@ -11,7 +15,7 @@ export const useAnimationFrame = (callback: (dt: number) => void, fps = 60) => {
         const deltaTime = time - previousTimeRef.current;
         ignored.current += deltaTime;
 
-        if (ignored.current > 1000 / fps) {
+        if (ignored.current > 1000 / autoFps) {
           ignored.current = 0;
           callback(deltaTime);
         }
@@ -26,5 +30,5 @@ export const useAnimationFrame = (callback: (dt: number) => void, fps = 60) => {
         cancelAnimationFrame(requestRef.current);
       }
     };
-  }, [callback, fps]);
+  }, [callback, autoFps]);
 };

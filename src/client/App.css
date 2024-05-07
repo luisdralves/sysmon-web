@@ -10,7 +10,7 @@
     background-color: var(--color-background0);
     padding: 16px;
     width: 100%;
-    height: max-content;
+    min-height: max-content;
     overflow: hidden;
   }
 
@@ -20,18 +20,17 @@
 
   @media (min-width: 640px) {
     @media (min-height: 640px) {
-      height: 100vh;
-
-      > div {
-        height: 100%;
-      }
-
       .chart {
         min-height: unset;
       }
 
       @media (orientation: landscape) {
         grid-template-columns: repeat(3, 1fr);
+        height: 100vh;
+  
+        > div {
+          height: 100%;
+        }
       }
       
       @media (orientation: portrait) {

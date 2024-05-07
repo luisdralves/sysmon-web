@@ -1,6 +1,8 @@
 # SysMon Web
 
-A system monitor for the web. Data is read with rust, and displayed on the browser via HTML canvas
+A system monitor for the web. Data is read with rust, and displayed on the browser via HTML canvas.
+
+[Live demo](https://sysmon.bate-estacas.xyz/)
 
 ![Screenshot 2024-05-06 at 18-49-44 SysMon Web](https://github.com/luisdralves/sysmon-web/assets/22676183/af08467d-50ae-4bd1-84d8-751f03b5fe11)
 

@@ -2,7 +2,6 @@ import { useAnimationFrame } from '@/hooks/use-animation-frame';
 import { getFillColor, getStrokeColor } from '@/utils/colors';
 import type { FormatOptions } from '@/utils/format';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { CartesianGrid } from './cartesian-grid';
 import './index.css';
 import { YAxis } from './y-axis';
 
@@ -26,20 +25,19 @@ const xFromTimestamp = (timestamp: number, width: number) =>
 export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, data, formatOptions }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null!);
   const now = useMemo(() => Date.now(), []);
-  const [history, setHistory] = useState<[number, number[]][]>([[now, []]]);
+  const history = useRef<[number, number[]][]>([[now, []]]);
+  const [historyMax, setHistoryMax] = useState(0);
   const targetMax = useMemo(() => {
     if (domain && hardDomain) {
       return domain[1];
     }
-
-    const historyMax = history.reduce((max, [_, values]) => Math.max(max, ...values), 0);
 
     if (!domain || historyMax > domain[1]) {
       return 1.25 * historyMax;
     }
 
     return domain[1];
-  }, [history, domain, hardDomain]);
+  }, [domain, hardDomain, historyMax]);
   const max = useRef(targetMax);
 
   const [width, setWidth] = useState(640);
@@ -48,13 +46,12 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, data, fo
   // Record data changes
   useEffect(() => {
     if (data) {
-      setHistory(history => {
-        const firstValidIndex = history.findIndex(([timestamp]) => xFromTimestamp(timestamp, width) >= -xMargin);
-        const newHistory = history.slice(firstValidIndex);
-        newHistory.push([Date.now(), data]);
+      while (xFromTimestamp(history.current[0][0], width) < -xMargin) {
+        history.current.shift();
+      }
 
-        return newHistory;
-      });
+      history.current.push([Date.now(), data]);
+      setHistoryMax(history.current.reduce((max, [_, values]) => Math.max(max, ...values), 0));
     }
   }, [data, width]);
 
@@ -81,13 +78,28 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, data, fo
     }
 
     if (!hardDomain) {
-      max.current = (max.current + targetMax) / 2;
+      max.current = (4 * max.current + targetMax) / 5;
     }
 
     ctx.clearRect(0, 0, width, height);
-    ctx.lineWidth = 2 * window.devicePixelRatio;
+    ctx.lineWidth = window.devicePixelRatio;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
+
+    const mappedHeight = Math.floor((height * max.current) / targetMax);
+    if (mappedHeight) {
+      for (let i = mappedHeight; i >= 0; i -= mappedHeight / 4) {
+        const clamped = Math.max(Math.min(i, height - 1), 1);
+        ctx.strokeStyle = getComputedStyle(canvasRef.current).getPropertyValue('--color-background1');
+        ctx.beginPath();
+        ctx.moveTo(-xMargin, clamped);
+        ctx.lineTo(width + xMargin, clamped);
+        ctx.stroke();
+        ctx.closePath();
+      }
+    }
+
+    ctx.lineWidth = 2 * window.devicePixelRatio;
 
     const drawSeries = (type: 'fill' | 'stroke') => {
       for (let i = 0; i < total; i++) {
@@ -96,16 +108,16 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, data, fo
 
         ctx.beginPath();
         ctx.moveTo(-xMargin, height);
-        ctx.lineTo(-xMargin, height - (height * (history[0][1][i] ?? 0)) / max.current);
+        ctx.lineTo(-xMargin, height - (height * (history.current[0][1][i] ?? 0)) / max.current);
 
-        for (const [timestamp, values] of history) {
+        for (const [timestamp, values] of history.current) {
           const x = xFromTimestamp(timestamp, width);
           const y = height - (height * (values[i] ?? 0)) / max.current;
 
           ctx.lineTo(x, y);
         }
 
-        ctx.lineTo(width + xMargin, height - (height * (history[0][1][i] ?? 0)) / max.current);
+        ctx.lineTo(width + xMargin, height - (height * (history.current[0][1][i] ?? 0)) / max.current);
         ctx.lineTo(width + xMargin, height);
 
         if (type === 'fill') ctx.fill();
@@ -124,8 +136,6 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, data, fo
       <YAxis max={targetMax} formatOptions={formatOptions} />
 
       <div className='canvas-wrapper'>
-        <CartesianGrid />
-
         <canvas ref={canvasRef} width={width} height={height} />
       </div>
     </div>

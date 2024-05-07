@@ -8,7 +8,6 @@ import { YAxis } from './y-axis';
 const stepWindow = Number(import.meta.env.CLIENT_GRAPH_STEPS);
 const stepPeriod = Number(import.meta.env.CLIENT_REFETCH_INTERVAL);
 const xMargin = 4;
-const fps = 30;
 
 type Props = {
   total: number;
@@ -33,7 +32,7 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, data, fo
     }
 
     if (!domain || historyMax > domain[1]) {
-      return 1.25 * historyMax;
+      return historyMax;
     }
 
     return domain[1];
@@ -129,7 +128,7 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, data, fo
 
     drawSeries('fill');
     drawSeries('stroke');
-  }, fps);
+  });
 
   return (
     <div className='chart'>

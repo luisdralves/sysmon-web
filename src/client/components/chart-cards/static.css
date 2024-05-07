@@ -1,0 +1,7 @@
+.switches {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 0px;
+}

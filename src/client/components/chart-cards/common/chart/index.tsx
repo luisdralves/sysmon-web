@@ -46,7 +46,7 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, data, fo
   // Record data changes
   useEffect(() => {
     if (data) {
-      while (xFromTimestamp(history.current[0][0], width) < -xMargin) {
+      while (history.current.length && xFromTimestamp(history.current[0][0], width) < -xMargin) {
         history.current.shift();
       }
 

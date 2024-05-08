@@ -1,13 +1,12 @@
 pub mod disks {
-    use serde_json::json;
     use std::{
         fs::File,
         io::{Read, Seek, SeekFrom},
     };
 
     pub struct DiskUsage {
-        read: u64,
-        write: u64,
+        pub read: u64,
+        pub write: u64,
     }
 
     impl DiskUsage {
@@ -43,12 +42,12 @@ pub mod disks {
             curr
         }
 
-        pub fn diff(&mut self) -> serde_json::Value {
+        pub fn diff(&mut self) -> DiskUsage {
             let curr = self.refresh();
-            let diff = json!({
-                "read": curr.read - self.prev.read,
-                "write": curr.write - self.prev.write,
-            });
+            let diff = DiskUsage {
+                read: curr.read - self.prev.read,
+                write: curr.write - self.prev.write,
+            };
             self.prev = curr;
             diff
         }

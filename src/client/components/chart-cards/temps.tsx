@@ -3,21 +3,22 @@ import { ChartCard } from './common/card';
 
 export const Temps = () => {
   const { data: staticData } = useQuery<StaticData>({ queryKey: ['static'] });
-  const { data: dynamicData } = useQuery<DynamicData>({ queryKey: ['dynamic'] });
+  const { data: historyData } = useQuery<HistorySlice[]>({ queryKey: ['history'] });
 
-  if (!staticData || !dynamicData) {
+  if (!staticData || !historyData) {
     return <div />;
   }
 
   return (
     <ChartCard
       title='Temperatures'
+      // @ts-expect-error: write a better union later
       legend={{
         labels: staticData.components,
       }}
       domain={[0, 100]}
       formatOptions={{ si: true, prefix: false, units: 'ºC' }}
-      data={dynamicData.temps}
+      dataKey={'temps'}
       total={staticData.components.length}
     />
   );

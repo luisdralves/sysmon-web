@@ -7,7 +7,7 @@ import { ChartCard } from './common/card';
 
 export const Memory = () => {
   const { data: staticData } = useQuery<StaticData>({ queryKey: ['static'] });
-  const { data: dynamicData } = useQuery<DynamicData>({ queryKey: ['dynamic'] });
+  const { data: historyData } = useQuery<HistorySlice[]>({ queryKey: ['history'] });
   const isSi = useAtomValue(siAtom);
   const formatOptions = { units: 'B', ...(isSi && { si: true }) };
 
@@ -18,7 +18,9 @@ export const Memory = () => {
     return [formatValue(staticData.total_memory, formatOptions), formatValue(staticData.total_swap, formatOptions)];
   }, [staticData, formatOptions]);
 
-  if (!staticData || !dynamicData) {
+  const last = useMemo(() => historyData?.at(-1), [historyData]);
+
+  if (!staticData || !historyData || !last) {
     return <div />;
   }
 
@@ -27,15 +29,15 @@ export const Memory = () => {
       title='Memory'
       legend={{
         values: [
-          `${formatValue(dynamicData.mem_usage, formatOptions)} / ${formatedTotals[0]}`,
-          `${formatValue(dynamicData.swap_usage, formatOptions)} / ${formatedTotals[1]}`,
+          `${formatValue(last.mem[0], formatOptions)} / ${formatedTotals[0]}`,
+          `${formatValue(last.mem[1], formatOptions)} / ${formatedTotals[1]}`,
         ],
         labels: ['Memory', 'Swap'],
       }}
       domain={[0, Math.max(staticData.total_memory, staticData.total_swap)]}
       hardDomain
       formatOptions={formatOptions}
-      data={[dynamicData.mem_usage, dynamicData.swap_usage]}
+      dataKey={'mem'}
       total={2}
     />
   );

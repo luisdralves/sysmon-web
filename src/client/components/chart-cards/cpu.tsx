@@ -3,13 +3,13 @@ import { ChartCard } from './common/card';
 
 export const Cpu = () => {
   const { data: staticData } = useQuery<StaticData>({ queryKey: ['static'] });
-  const { data: dynamicData } = useQuery<DynamicData>({ queryKey: ['dynamic'] });
+  const { data: historyData } = useQuery<HistorySlice[]>({ queryKey: ['history'] });
 
-  if (!staticData || !dynamicData) {
+  if (!staticData || !historyData) {
     return <div />;
   }
 
-  const total_cpus = dynamicData.cpu_usage.length;
+  const total_cpus = historyData[0].cpu.length;
 
   return (
     !!total_cpus && (
@@ -24,7 +24,7 @@ export const Cpu = () => {
         domain={[0, 100]}
         hardDomain
         formatOptions={{ prefix: false, units: '%' }}
-        data={dynamicData.cpu_usage}
+        dataKey={'cpu'}
         total={total_cpus}
       />
     )

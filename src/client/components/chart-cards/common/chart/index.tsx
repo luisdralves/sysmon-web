@@ -112,7 +112,7 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, dataKey,
           ctx.lineTo(x, y);
         }
 
-        ctx.lineTo(width + xMargin, height - (height * (history.current.data[0][dataKey][i] ?? 0)) / max.current);
+        ctx.lineTo(width + xMargin, height - (height * (history.current.data.at(-1)?.[dataKey][i] ?? 0)) / max.current);
         ctx.lineTo(width + xMargin, height);
 
         if (type === 'fill') ctx.fill();

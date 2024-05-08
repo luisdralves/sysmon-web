@@ -1,8 +1,9 @@
+import { historyAtom } from '@/atoms';
 import { useAnimationFrame } from '@/hooks/use-animation-frame';
 import { getFillColor, getStrokeColor } from '@/utils/colors';
 import type { FormatOptions } from '@/utils/format';
-import { useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useAtomValue } from 'jotai';
+import { useEffect, useRef, useState } from 'react';
 import './index.css';
 import { YAxis } from './y-axis';
 
@@ -24,21 +25,9 @@ const xFromTimestamp = (timestamp: number, width: number) =>
 
 export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, dataKey, formatOptions }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null!);
-  const { data: historyData } = useQuery<HistorySlice[]>({ queryKey: ['history'] });
-  const targetMax = useMemo(() => {
-    if (domain && hardDomain) {
-      return domain[1];
-    }
-
-    const historyMax = (historyData ?? []).reduce((max, slice) => Math.max(max, ...slice[dataKey]), 0);
-
-    if (!domain || historyMax > domain[1]) {
-      return historyMax;
-    }
-
-    return domain[1];
-  }, [domain, hardDomain, historyData, dataKey]);
-  const max = useRef(targetMax);
+  const history = useAtomValue(historyAtom);
+  const [lockedTargetMax, setLockedTargetMax] = useState(domain?.[1] ?? 0);
+  const max = useRef(lockedTargetMax);
 
   const [width, setWidth] = useState(640);
   const [height, setHeight] = useState(480);
@@ -61,8 +50,26 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, dataKey,
   // Redraw chart
   useAnimationFrame(() => {
     const ctx = canvasRef.current.getContext('2d');
-    if (!ctx || !historyData) {
+    if (!ctx || !history.current) {
       return;
+    }
+
+    const targetMax = (() => {
+      if (domain && hardDomain) {
+        return domain[1];
+      }
+
+      const historyMax = history.current.maxes[dataKey as keyof typeof history.current.maxes] ?? 0;
+
+      if (!domain || historyMax > domain[1]) {
+        return historyMax;
+      }
+
+      return domain[1];
+    })();
+
+    if (lockedTargetMax !== targetMax) {
+      setLockedTargetMax(targetMax);
     }
 
     if (!hardDomain) {
@@ -96,16 +103,16 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, dataKey,
 
         ctx.beginPath();
         ctx.moveTo(-xMargin, height);
-        ctx.lineTo(-xMargin, height - (height * (historyData[0][dataKey][i] ?? 0)) / max.current);
+        ctx.lineTo(-xMargin, height - (height * (history.current.data[0][dataKey][i] ?? 0)) / max.current);
 
-        for (const { timestamp, [dataKey]: values } of historyData) {
+        for (const { timestamp, [dataKey]: values } of history.current.data) {
           const x = xFromTimestamp(timestamp, width);
           const y = height - (height * (values[i] ?? 0)) / max.current;
 
           ctx.lineTo(x, y);
         }
 
-        ctx.lineTo(width + xMargin, height - (height * (historyData[0][dataKey][i] ?? 0)) / max.current);
+        ctx.lineTo(width + xMargin, height - (height * (history.current.data[0][dataKey][i] ?? 0)) / max.current);
         ctx.lineTo(width + xMargin, height);
 
         if (type === 'fill') ctx.fill();
@@ -121,7 +128,7 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, dataKey,
 
   return (
     <div className='chart'>
-      <YAxis max={targetMax} formatOptions={formatOptions} />
+      <YAxis max={lockedTargetMax} formatOptions={formatOptions} />
 
       <div className='canvas-wrapper'>
         <canvas ref={canvasRef} width={width} height={height} />

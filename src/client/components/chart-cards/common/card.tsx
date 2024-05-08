@@ -1,4 +1,4 @@
-import { Legend, type LegendProps } from '@/components/chart-cards/common/legend';
+import { Legend, type LegendByDataProps, type LegendByKeyProps } from '@/components/chart-cards/common/legend';
 import type { FormatOptions } from '@/utils/format';
 import type { ReactNode } from 'react';
 import { CanvasChart } from './chart';
@@ -6,7 +6,7 @@ import { CanvasChart } from './chart';
 type Props = {
   title: ReactNode;
   subtitle?: ReactNode;
-  legend?: LegendProps;
+  legend?: Omit<LegendByKeyProps, 'dataKey'> | LegendByDataProps;
   formatOptions?: FormatOptions;
   domain?: [number, number];
   hardDomain?: boolean;
@@ -22,7 +22,8 @@ export const ChartCard = ({ dataKey, legend, hueOffset = 0, title, subtitle, for
 
       {subtitle}
 
-      {legend && (
+      {legend && (dataKey || 'values' in legend) && (
+        // @ts-expect-error: not inferable, but safe
         <Legend
           hueOffset={hueOffset}
           formatOptions={formatOptions}

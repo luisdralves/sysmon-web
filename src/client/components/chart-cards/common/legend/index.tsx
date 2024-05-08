@@ -1,24 +1,23 @@
 import { getTextColor } from '@/utils/colors';
 import { type FormatOptions, formatValue } from '@/utils/format';
 import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import './index.css';
 
-type LegendCommonProps = {
+export type LegendCommonProps = {
   labels: string[];
   formatOptions?: FormatOptions;
   hueOffset?: number;
 };
 
-type LegendByKeyProps = LegendCommonProps & {
+export type LegendByKeyProps = LegendCommonProps & {
   dataKey: Exclude<keyof HistorySlice, 'timestamp'>;
+  totals?: number[];
 };
 
-type LegendByDataProps = LegendCommonProps & {
+export type LegendByDataProps = LegendCommonProps & {
   values: string[] | number[];
 };
-
-export type LegendProps = LegendByDataProps | LegendByKeyProps;
 
 export const LegendByData = ({ labels, formatOptions, hueOffset = 0, values }: LegendByDataProps) => (
   <div className='legend-wrapper'>
@@ -36,15 +35,26 @@ export const LegendByData = ({ labels, formatOptions, hueOffset = 0, values }: L
   </div>
 );
 
-export const LegendByKey = ({ dataKey, ...rest }: LegendByKeyProps) => {
-  const { data: historyData } = useQuery<HistorySlice[]>({ queryKey: ['history'] });
-  const values = useMemo(() => historyData?.at(-1)?.[dataKey], [historyData, dataKey]);
+export const LegendByKey = memo(({ dataKey, totals, formatOptions, ...rest }: LegendByKeyProps) => {
+  const { data: dynamicData } = useQuery<HistorySlice>({ queryKey: ['dynamic'] });
+  const values = useMemo(
+    () =>
+      dynamicData?.[dataKey]?.map((value, index) => {
+        if (totals) {
+          return `${formatValue(value, formatOptions)} / ${formatValue(totals[index], formatOptions)}`;
+        }
+
+        return formatValue(value, formatOptions);
+      }),
+    [dynamicData, dataKey, formatOptions, totals],
+  );
+
   if (values) {
     return <LegendByData {...rest} values={values} />;
   }
-};
+});
 
-export const Legend = (props: LegendProps) => {
+export const Legend = (props: LegendByDataProps | LegendByKeyProps) => {
   if ('values' in props) {
     return <LegendByData {...props} />;
   }

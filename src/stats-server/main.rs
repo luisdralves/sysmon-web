@@ -151,6 +151,7 @@ async fn static_sysinfo_get() -> impl IntoResponse {
     );
 
     let components = Components::new_with_refreshed_list();
+    let cpus = sys.cpus();
 
     Response::builder()
         .header(axum::http::header::ORIGIN, "*")
@@ -167,9 +168,10 @@ async fn static_sysinfo_get() -> impl IntoResponse {
                 "total_memory": sys.total_memory(),
                 "total_swap": sys.total_swap(),
                 "cpu": {
-                    "name": sys.cpus()[0].name(),
-                    "vendor_id": sys.cpus()[0].vendor_id(),
-                    "brand": sys.cpus()[0].brand(),
+                    "name": cpus[0].name(),
+                    "vendor_id": cpus[0].vendor_id(),
+                    "brand": cpus[0].brand(),
+                    "threads": cpus.len(),
                 },
                 "components": components
                 .iter()

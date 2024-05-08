@@ -17,7 +17,12 @@ export const fetchStaticData = async (): Promise<StaticData> => {
   return await response.json();
 };
 
-export const fetchDynamicData = async (): Promise<DynamicData> => {
+export const fetchHistoryData = async (): Promise<HistorySlice[]> => {
+  const response = await fetch(getApiUrl('/api/history'));
+  return await response.json();
+};
+
+export const fetchDynamicData = async (): Promise<HistorySlice> => {
   const response = await fetch(getApiUrl('/api/dynamic'));
   return await response.json();
 };

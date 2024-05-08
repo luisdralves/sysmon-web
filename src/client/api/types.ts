@@ -15,17 +15,11 @@ type StaticData = {
   uptime: number;
 };
 
-type DynamicData = {
-  cpu_usage: number[];
-  disks: {
-    read: number;
-    write: number;
-  };
-  mem_usage: number;
-  network: {
-    down: number;
-    up: number;
-  };
-  swap_usage: number;
+type HistorySlice = {
+  cpu: number[];
+  mem: [number, number];
+  net: [number, number];
+  disks: [number, number];
   temps: number[];
+  timestamp: number;
 };

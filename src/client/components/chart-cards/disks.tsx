@@ -4,22 +4,23 @@ import { useAtomValue } from 'jotai';
 import { ChartCard } from './common/card';
 
 export const Disks = () => {
-  const { data: dynamicData } = useQuery<DynamicData>({ queryKey: ['dynamic'] });
+  const { data: historyData } = useQuery<HistorySlice[]>({ queryKey: ['history'] });
   const isSi = useAtomValue(siAtom);
 
-  if (!dynamicData) {
+  if (!historyData) {
     return <div />;
   }
 
   return (
     <ChartCard
       title='Disk activity'
+      // @ts-expect-error: write a better union later
       legend={{
         labels: ['Read', 'Write'],
       }}
       hueOffset={120}
       formatOptions={{ units: 'B/s', ...(isSi && { si: true }) }}
-      data={[dynamicData.disks.read, dynamicData.disks.write]}
+      dataKey={'disks'}
       total={2}
     />
   );

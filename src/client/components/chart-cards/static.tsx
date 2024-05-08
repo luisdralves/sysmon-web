@@ -1,9 +1,10 @@
 import { highFpsAtom, siAtom } from '@/atoms';
 import { Switch } from '@/components/switch';
 import { useAnimationFrame } from '@/hooks/use-animation-frame';
+import { useSetTheme } from '@/hooks/use-set-theme';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import './static.css';
 
 const formatUptime = (value: number) => {
@@ -41,14 +42,11 @@ const Uptime = ({ boot_time }: Pick<StaticData, 'boot_time'>) => {
 
 export const Static = () => {
   const { data: staticData } = useQuery<StaticData>({ queryKey: ['static'] });
-  const root = useRef(document.getElementById('root')!);
   const [dark, setDark] = useState(window.matchMedia('(prefers-color-scheme: dark)').matches);
   const [highFps, setHighFps] = useAtom(highFpsAtom);
   const [isSi, setIsSi] = useAtom(siAtom);
 
-  useEffect(() => {
-    root.current.setAttribute('data-theme', dark ? 'dark' : 'light');
-  }, [dark]);
+  useSetTheme(dark);
 
   return (
     staticData && (

@@ -4,6 +4,7 @@
   display: grid;
   padding: 8px;
   gap: 8px;
+  min-height: 100dvh;
 
   > div {
     border-radius: 16px;

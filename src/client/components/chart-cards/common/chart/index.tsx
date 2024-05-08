@@ -1,17 +1,18 @@
 import { useAnimationFrame } from '@/hooks/use-animation-frame';
 import { getFillColor, getStrokeColor } from '@/utils/colors';
 import type { FormatOptions } from '@/utils/format';
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import './index.css';
 import { YAxis } from './y-axis';
 
-const stepWindow = Number(import.meta.env.CLIENT_GRAPH_STEPS);
+const stepWindow = Number(import.meta.env.SERVER_STEPS);
 const stepPeriod = Number(import.meta.env.CLIENT_REFETCH_INTERVAL);
 const xMargin = 4;
 
 type Props = {
   total: number;
-  data: number[];
+  dataKey: Exclude<keyof HistorySlice, 'timestamp'>;
   domain?: [number, number];
   hardDomain?: boolean;
   formatOptions?: FormatOptions;
@@ -21,38 +22,26 @@ type Props = {
 const xFromTimestamp = (timestamp: number, width: number) =>
   ((timestamp - Date.now()) / stepPeriod) * (width / stepWindow) + width + (width / stepWindow) * 2;
 
-export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, data, formatOptions }: Props) => {
+export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, dataKey, formatOptions }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null!);
-  const now = useMemo(() => Date.now(), []);
-  const history = useRef<[number, number[]][]>([[now, []]]);
-  const [historyMax, setHistoryMax] = useState(0);
+  const { data: historyData } = useQuery<HistorySlice[]>({ queryKey: ['history'] });
   const targetMax = useMemo(() => {
     if (domain && hardDomain) {
       return domain[1];
     }
+
+    const historyMax = (historyData ?? []).reduce((max, slice) => Math.max(max, ...slice[dataKey]), 0);
 
     if (!domain || historyMax > domain[1]) {
       return historyMax;
     }
 
     return domain[1];
-  }, [domain, hardDomain, historyMax]);
+  }, [domain, hardDomain, historyData, dataKey]);
   const max = useRef(targetMax);
 
   const [width, setWidth] = useState(640);
   const [height, setHeight] = useState(480);
-
-  // Record data changes
-  useEffect(() => {
-    if (data) {
-      while (history.current.length && xFromTimestamp(history.current[0][0], width) < -xMargin) {
-        history.current.shift();
-      }
-
-      history.current.push([Date.now(), data]);
-      setHistoryMax(history.current.reduce((max, [_, values]) => Math.max(max, ...values), 0));
-    }
-  }, [data, width]);
 
   // Sync canvas size to actual element dimensions
   useEffect(() => {
@@ -72,7 +61,7 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, data, fo
   // Redraw chart
   useAnimationFrame(() => {
     const ctx = canvasRef.current.getContext('2d');
-    if (!ctx) {
+    if (!ctx || !historyData) {
       return;
     }
 
@@ -107,16 +96,16 @@ export const CanvasChart = ({ total, hueOffset = 0, domain, hardDomain, data, fo
 
         ctx.beginPath();
         ctx.moveTo(-xMargin, height);
-        ctx.lineTo(-xMargin, height - (height * (history.current[0][1][i] ?? 0)) / max.current);
+        ctx.lineTo(-xMargin, height - (height * (historyData[0][dataKey][i] ?? 0)) / max.current);
 
-        for (const [timestamp, values] of history.current) {
+        for (const { timestamp, [dataKey]: values } of historyData) {
           const x = xFromTimestamp(timestamp, width);
           const y = height - (height * (values[i] ?? 0)) / max.current;
 
           ctx.lineTo(x, y);
         }
 
-        ctx.lineTo(width + xMargin, height - (height * (history.current[0][1][i] ?? 0)) / max.current);
+        ctx.lineTo(width + xMargin, height - (height * (historyData[0][dataKey][i] ?? 0)) / max.current);
         ctx.lineTo(width + xMargin, height);
 
         if (type === 'fill') ctx.fill();

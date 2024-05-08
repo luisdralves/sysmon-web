@@ -5,6 +5,7 @@ type StaticData = {
     brand: string;
     name: string;
     vendor_id: string;
+    threads: number;
   };
   host_name: string;
   kernel_version: string;
@@ -22,4 +23,9 @@ type HistorySlice = {
   disks: [number, number];
   temps: number[];
   timestamp: number;
+};
+
+type HistoryNormalized = {
+  data: HistorySlice[];
+  maxes: Record<'net' | 'disks' | 'temps', number>;
 };

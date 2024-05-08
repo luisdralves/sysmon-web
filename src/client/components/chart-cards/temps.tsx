@@ -3,16 +3,14 @@ import { ChartCard } from './common/card';
 
 export const Temps = () => {
   const { data: staticData } = useQuery<StaticData>({ queryKey: ['static'] });
-  const { data: historyData } = useQuery<HistorySlice[]>({ queryKey: ['history'] });
 
-  if (!staticData || !historyData) {
+  if (!staticData) {
     return <div />;
   }
 
   return (
     <ChartCard
       title='Temperatures'
-      // @ts-expect-error: write a better union later
       legend={{
         labels: staticData.components,
       }}

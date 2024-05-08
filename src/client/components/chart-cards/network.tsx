@@ -1,20 +1,13 @@
 import { siAtom } from '@/atoms';
-import { useQuery } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { ChartCard } from './common/card';
 
 export const Network = () => {
-  const { data: historyData } = useQuery<HistorySlice[]>({ queryKey: ['history'] });
   const isSi = useAtomValue(siAtom);
-
-  if (!historyData) {
-    return <div />;
-  }
 
   return (
     <ChartCard
       title='Network'
-      // @ts-expect-error: write a better union later
       legend={{
         labels: ['Down', 'Up'],
       }}

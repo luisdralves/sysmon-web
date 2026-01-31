@@ -1,0 +1,43 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    container:
+      image: rust:latest
+      volumes:
+        - /var/www/sysmon-web:/deploy
+        - /opt/sysmon-web:/deploy-bin
+    steps:
+      - name: Install Bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          ln -s $HOME/.bun/bin/bun /usr/local/bin/bun
+          ln -s $HOME/.bun/bin/bun /usr/local/bin/node
+
+      - uses: actions/checkout@v4
+
+      - name: Install frontend dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build frontend
+        run: bun run tsc && bun run vite build
+        env:
+          SERVER_DEPLOY_URL: ${{ vars.SERVER_DEPLOY_URL }}
+
+      - name: Build backend
+        run: cargo build --release
+
+      - name: Deploy frontend
+        run: |
+          rm -rf /deploy/*
+          cp -r dist/* /deploy/
+
+      - name: Deploy backend
+        run: |
+          cp target/release/stats_server /deploy-bin/stats_server.new
+          mv /deploy-bin/stats_server.new /deploy-bin/stats_server

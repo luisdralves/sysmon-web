@@ -13,11 +13,12 @@ jobs:
         - /var/www/sysmon-web:/deploy
         - /opt/sysmon-web:/deploy-bin
     steps:
-      - name: Install Bun
+      - name: Install Bun and Node
         run: |
+          NODE_TAR=$(curl -fsSL https://nodejs.org/dist/latest-v24.x/ | grep -oE 'node-v[0-9.]+-linux-x64\.tar\.xz' | head -1)
+          curl -fsSL "https://nodejs.org/dist/latest-v24.x/${NODE_TAR}" | tar -xJ -C /usr/local --strip-components=1
           curl -fsSL https://bun.sh/install | bash
           ln -s $HOME/.bun/bin/bun /usr/local/bin/bun
-          ln -s $HOME/.bun/bin/bun /usr/local/bin/node
 
       - uses: actions/checkout@v4
 

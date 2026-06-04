@@ -35,8 +35,8 @@ pub mod disks {
             self.fd.read_to_string(&mut io_data).unwrap();
             for line in io_data.lines() {
                 let fields: Vec<_> = line.split_whitespace().collect();
-                curr.read += fields[5].parse::<u64>().unwrap() * 512 * 8;
-                curr.write += fields[9].parse::<u64>().unwrap() * 512 * 8;
+                curr.read += fields[5].parse::<u64>().unwrap() * 512;
+                curr.write += fields[9].parse::<u64>().unwrap() * 512;
             }
             self.fd.seek(SeekFrom::Start(0)).unwrap();
             curr

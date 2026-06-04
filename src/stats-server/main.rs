@@ -3,7 +3,7 @@ use dotenv::dotenv;
 use serde_json::json;
 use std::{
     sync::{Arc, Mutex},
-    time::{Duration, SystemTime, UNIX_EPOCH},
+    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 use sysinfo::{Components, CpuRefreshKind, MemoryRefreshKind, Networks, RefreshKind, System};
 
@@ -37,8 +37,14 @@ impl Default for AppState {
 #[tokio::main]
 async fn main() {
     dotenv().ok();
-    let refresh_interval = std::env::var("SERVER_REFRESH_INTERVAL").unwrap().parse::<u64>().unwrap();
-    let steps = std::env::var("SERVER_STEPS").unwrap().parse::<u64>().unwrap();
+    let refresh_interval = std::env::var("SERVER_REFRESH_INTERVAL")
+        .unwrap()
+        .parse::<u64>()
+        .unwrap();
+    let steps = std::env::var("SERVER_STEPS")
+        .unwrap()
+        .parse::<u64>()
+        .unwrap();
     let port = std::env::var("SERVER_PORT").unwrap();
     let app_state = AppState::default();
 
@@ -54,6 +60,7 @@ async fn main() {
         let mut components = Components::new_with_refreshed_list();
         let mut networks = Networks::new_with_refreshed_list();
         let mut disk_stats = DiskStats::new();
+        let mut prev_sample_instant = Instant::now();
 
         loop {
             sys.refresh_cpu();
@@ -61,6 +68,10 @@ async fn main() {
             components.refresh();
             networks.refresh();
             disk_stats.refresh();
+
+            let now = Instant::now();
+            let elapsed_secs = now.duration_since(prev_sample_instant).as_secs_f64();
+            prev_sample_instant = now;
 
             let cpu_usage: Vec<_> = sys.cpus().iter().map(|cpu| cpu.cpu_usage()).collect();
             let mem_usage = sys.used_memory();
@@ -72,16 +83,23 @@ async fn main() {
             let (net_down, net_up) =
                 networks
                     .iter()
-                    .fold((0, 0), |(down, up), (_name, network)| {
+                    .fold((0u64, 0u64), |(down, up), (_name, network)| {
                         (down + network.received(), up + network.transmitted())
                     });
+            let net_down = (net_down as f64 / elapsed_secs) as u64;
+            let net_up = (net_up as f64 / elapsed_secs) as u64;
 
             {
                 let disks_diff = disk_stats.diff();
+                let disks_read = (disks_diff.read as f64 / elapsed_secs) as u64;
+                let disks_write = (disks_diff.write as f64 / elapsed_secs) as u64;
                 let mut data = app_state.data.lock().unwrap();
 
                 // Get the current time
-                let current_time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis();
+                let current_time = SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap()
+                    .as_millis();
 
                 // Find the index of the first element within the last 60 seconds
                 let first_index_to_keep = match data.iter().position(|item| {
@@ -97,7 +115,7 @@ async fn main() {
                     cpu: cpu_usage,
                     mem: (mem_usage, swap_usage),
                     net: (net_down, net_up),
-                    disks: (disks_diff.read, disks_diff.write),
+                    disks: (disks_read, disks_write),
                     temps,
                     timestamp: SystemTime::now()
                         .duration_since(UNIX_EPOCH)
